@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temp and Hum Chart</title>
+    <style>
+      body {
+        height: 90vh;
+        padding-inline: 20px;
+      }
+       main {
+        display: flex;
+        align-items: end;
+        height: 90%;
+      }
+      .container {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="container" />
+        <canvas id="myChart"></canvas>
+      </div>
+      <div class="container" />
+        <canvas id="myChart2"></canvas>
+      </div>
+    </main>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    fetch(`${window.location.href}api/get_data`)
+      .then((response) => response.json())
+      .then(({ code, hum_data, temp_data }) => {
+        if(code === 0) {
+          document.write('Không có dữ liệu!');
+          return;
+        }
+        const getValue = (arr) => arr[0];
+        const getTime = (arr) => arr[1];
+
+        const labels_hum = hum_data.map(getTime);
+        const labels_temp = temp_data.map(getTime);
+        const data_hum = hum_data.map(getValue);
+        const data_temp = temp_data.map(getValue);
+
+        const hum = {
+          labels: labels_hum,
+          datasets: [
+            {
+              label: 'Humidity',
+              backgroundColor: 'rgb(255, 99, 132)',
+              borderColor: 'rgb(255, 99, 132)',
+              data: data_hum,
+            },
+          ],
+        };
+
+        const temp = {
+          labels: labels_temp,
+          datasets: [
+            {
+              label: 'Temperature',
+              backgroundColor: 'rgb(94 62 219)',
+              borderColor: 'rgb(94 62 219)',
+              data: data_temp,
+            },
+          ],
+        };
+
+        const config = (data) => ({
+          type: 'line',
+          data: data,
+          options: {
+            responsive: true,
+          },
+        });
+
+        new Chart(document.getElementById('myChart'), config(hum));
+        new Chart(document.getElementById('myChart2'), config(temp));
+      });
+  </script>
+</html>
